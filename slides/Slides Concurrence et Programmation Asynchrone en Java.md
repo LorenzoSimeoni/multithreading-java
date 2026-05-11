@@ -82,6 +82,7 @@ style: |
 <!-- _class: cover -->
 
 # Concurrence et Programmation Asynchrone en Java
+
 ### De Java 1.0 à Java 25
 
 ---
@@ -90,7 +91,7 @@ style: |
 
 Un programme classique s'exécute **séquentiellement** — une instruction après l'autre, sur un seul fil d'exécution.
 
-```
+```text
 Requête utilisateur
       │
       ▼
@@ -112,13 +113,14 @@ Pendant ce temps, 1000 autres utilisateurs attendent leur tour.
 
 Le multithreading permet de **faire avancer plusieurs tâches en parallèle** :
 
-```
+```text
 Thread 1 → Requête utilisateur A : [DB...][HTTP...][réponse]
 Thread 2 → Requête utilisateur B :    [DB...][HTTP...][réponse]
 Thread 3 → Requête utilisateur C :       [DB...][HTTP...][réponse]
 ```
 
 **Concrètement pour nous :**
+
 - Servir **plus d'utilisateurs simultanément** sans augmenter le hardware
 - **Accélérer les traitements** en parallélisant les calculs
 - **Ne pas bloquer** l'application pendant une opération longue
@@ -131,12 +133,12 @@ Thread 3 → Requête utilisateur C :       [DB...][HTTP...][réponse]
 
 Deux familles de workloads — **la distinction la plus importante du cours**.
 
-| | CPU-bound | I/O-bound |
-|---|---|---|
-| **Facteur limitant** | Puissance de calcul | Attente de ressources externes |
-| **CPU pendant la tâche** | Saturé | Souvent inactif |
-| **Exemples** | Tri, cryptographie, ML, compression | Requêtes SQL, appels HTTP, fichiers |
-| **Stratégie threads** | 1 thread par cœur | Beaucoup plus de threads que de cœurs |
+|                          | CPU-bound                                         | I/O-bound                             |
+| ------------------------ | ------------------------------------------------- | ------------------------------------- |
+| **Facteur limitant**     | Puissance de calcul                               | Attente de ressources externes        |
+| **CPU pendant la tâche** | Saturé                                            | Souvent inactif                       |
+| **Exemples**             | Tri, cryptographie, Machine learning, compression | Requêtes SQL, appels HTTP, fichiers   |
+| **Stratégie threads**    | 1 thread par cœur                                 | Beaucoup plus de threads que de cœurs |
 
 <br>
 
@@ -148,7 +150,9 @@ Deux familles de workloads — **la distinction la plus importante du cours**.
 
 ## 📅 L'évolution en un coup d'œil
 
-```
+**Le fil conducteur :** chaque génération répond aux **limitations de la précédente**.
+
+```text
 Java 1.0  →  Thread, Runnable, synchronized      (gestion manuelle)
 Java 5    →  ExecutorService, Future, Callable    (gestion de pools)
 Java 7    →  ForkJoinPool, Work-Stealing          (parallélisme récursif)
@@ -159,20 +163,14 @@ Java 21   →  Structured Concurrency               (cycle de vie garanti)
 Java 21   →  Scoped Values                        (contexte immutable)
 ```
 
-**Le fil conducteur :** chaque génération répond aux **limitations de la précédente**.
-
----
-
-## 📅 L'évolution en un coup d'œil
-
-| Problème rencontré | Solution apportée |
-|---|---|
-| Gestion manuelle des threads | `ExecutorService` (Java 5) |
-| Threads coûteux à créer | Pools de threads réutilisables |
-| Pas de parallélisme récursif | `ForkJoinPool` (Java 7) |
-| `Future` bloquant et non composable | `CompletableFuture` (Java 8) |
-| Un seul résultat, pas de backpressure | `Flow API` (Java 9) |
-| Platform threads limités et coûteux | Virtual Threads (Java 21) |
+| Problème rencontré                    | Solution apportée                |
+| ------------------------------------- | -------------------------------- |
+| Gestion manuelle des threads          | `ExecutorService` (Java 5)       |
+| Threads coûteux à créer               | Pools de threads réutilisables   |
+| Pas de parallélisme récursif          | `ForkJoinPool` (Java 7)          |
+| `Future` bloquant et non composable   | `CompletableFuture` (Java 8)     |
+| Un seul résultat, pas de backpressure | `Flow API` (Java 9)              |
+| Platform threads limités et coûteux   | Virtual Threads (Java 21)        |
 | Cycle de vie des tâches non structuré | Structured Concurrency (Java 21) |
 
 ---
@@ -252,12 +250,12 @@ try (ExecutorService pool = Executors.newFixedThreadPool(4)) {
 }
 ```
 
-| Pool | Usage |
-|---|---|
-| `newFixedThreadPool(n)` | Workload stable, taille connue |
-| `newSingleThreadExecutor()` | Exécution séquentielle garantie |
-| `newCachedThreadPool()` | Pics de charge ⚠️ pas de limite haute |
-| `newScheduledThreadPool(n)` | Tâches différées ou répétitives |
+| Pool                        | Usage                                 |
+| --------------------------- | ------------------------------------- |
+| `newFixedThreadPool(n)`     | Workload stable, taille connue        |
+| `newSingleThreadExecutor()` | Exécution séquentielle garantie       |
+| `newCachedThreadPool()`     | Pics de charge ⚠️ pas de limite haute |
+| `newScheduledThreadPool(n)` | Tâches différées ou répétitives       |
 
 ---
 
@@ -289,12 +287,13 @@ Impossible de chaîner des opérations sans cascade de blocages.<br>
 
 Java 5 introduit aussi une boîte à outils complète — à connaître, sans s'y attarder :
 
-| Famille | Outils | En une phrase |
-|---|---|---|
-| **Locks** | `ReentrantLock`, `ReadWriteLock` | `synchronized` avec timeout et tryLock |
-| **Atomic** | `AtomicInteger`, `AtomicReference` | Compteurs thread-safe sans lock (CAS) |
-| **Collections** | `ConcurrentHashMap`, `BlockingQueue` | Collections conçues pour la concurrence |
-| **Synchronizers** | `CountDownLatch`, `Semaphore`, `CyclicBarrier` | Coordination entre threads |
+| Famille           | Outils                                         | En une phrase                           |
+| ----------------- | ---------------------------------------------- | --------------------------------------- |
+| **Locks**         | `ReentrantLock`, `ReadWriteLock`               | `synchronized` avec timeout et tryLock  |
+| **Volatile**      | `volatile`                                     | Visibilité garantie entre threads (JMM) |
+| **Atomic**        | `AtomicInteger`, `AtomicReference`             | Compteurs thread-safe sans lock (CAS)   |
+| **Collections**   | `ConcurrentHashMap`, `BlockingQueue`           | Collections conçues pour la concurrence |
+| **Synchronizers** | `CountDownLatch`, `Semaphore`, `CyclicBarrier` | Coordination entre threads              |
 
 <div class="tip">
 💡 <strong>Règle pratique :</strong> préférer les <code>Atomic</code> pour les compteurs simples,
@@ -319,6 +318,7 @@ I/O-bound → beaucoup plus que de cœurs
 ```
 
 **La contrainte mémoire :**
+
 ```
 1 Platform Thread ≈ 2 Mo de stack
 4 Go RAM → ~2 000 threads max
@@ -374,6 +374,11 @@ Conçu pour les tâches **CPU-bound récursives** : diviser pour mieux régner.
 🎯 CPU-bound uniquement — ne pas utiliser pour de l'I/O bloquant.
 </div>
 
+<div class="tip">
+💡 <strong>Piège :</strong> <code>CompletableFuture</code> et <code>parallelStream()</code> partagent le même pool (<code>ForkJoinPool.commonPool()</code>).<br>
+Si vous mélangez les deux, des tâches I/O-bound peuvent bloquer des calculs CPU-bound. Préférez des pools explicites pour la production.
+</div>
+
 ---
 
 ## ☕ Java 8 — CompletableFuture
@@ -397,43 +402,16 @@ Le thread appelant **n'est jamais bloqué** — chaque étape s'exécute dès qu
 
 ---
 
-## ☕ Java 8 — CompletableFuture
-
-**Combiner plusieurs tâches en parallèle :**
-
-```java
-// Deux appels en parallèle, on combine quand les deux sont prêts
-CompletableFuture<String> userFuture   = supplyAsync(() -> fetchUser());
-CompletableFuture<Integer> creditFuture = supplyAsync(() -> fetchCredit());
-
-userFuture.thenCombine(creditFuture,
-    (user, credit) -> user + " — crédit : " + credit + "€"
-);
-
-// Attendre toutes les tâches
-CompletableFuture.allOf(userFuture, creditFuture, inventoryFuture)
-    .thenRun(() -> buildDashboard());
-
-// Prendre le plus rapide
-serviceA.applyToEither(serviceB, response -> response.toUpperCase());
-```
-
-<div class="tip">
-💡 <strong>parallelStream()</strong> suit la même logique pour les collections CPU-bound —
-distribue les opérations sur le <code>ForkJoinPool.commonPool()</code>.
-</div>
-
----
-
 ## ☕ Java 8 — Limites de CompletableFuture
 
 Trois limitations qui motivent la Flow API :
 
-| Limite | Problème concret |
-|---|---|
-| **Eager** — pas de lazy | Le calcul démarre immédiatement, même si personne ne consomme le résultat |
-| **Un seul résultat** | Impossible de modéliser un flux continu d'événements |
-| **Pas de backpressure** | Le producteur ne peut pas être ralenti si le consommateur déborde |
+| Limite                  | Problème concret                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| **Eager** — pas de lazy | Le calcul démarre immédiatement, même si personne ne consomme le résultat         |
+| **Bloquant**            | Encore beaucoup de cas ou on doit appeler .get et donc bloquer le thread appelant |
+| **Un seul résultat**    | Impossible de modéliser un flux continu d'événements                              |
+| **Pas de backpressure** | Le producteur ne peut pas être ralenti si le consommateur déborde                 |
 
 ```
 Producteur → 1 000 000 événements/s
@@ -444,6 +422,25 @@ CompletableFuture ne peut pas dire "attends, je suis débordé"
 ```
 
 → **Java 9 introduit la Flow API** pour répondre à ces trois limites.
+
+---
+
+## ☕ Java 8 — parallelStream
+
+**CPU-bound** : `parallelStream` brille sur des collections larges avec des opérations de **calcul pur** (map mathématique, filter, reduce). Pour de l'I/O-bound (ex: requête DB par élément), préférez un `ExecutorService` dédié — les threads du `commonPool` ne doivent pas être bloqués sur des I/O.
+
+| Condition                                       | Aide ?                   |
+| ----------------------------------------------- | ------------------------ |
+| Collection large (> 10 000 éléments)            | ✅ Oui                   |
+| Opérations CPU pures (calculs, transformations) | ✅ Oui                   |
+| Opérations I/O (appels DB, HTTP...)             | ❌ Non                   |
+| Collections petites                             | ❌ Non (overhead > gain) |
+| Ordre de traitement important                   | ⚠️ Possible mais coûteux |
+| État partagé mutable                            | ❌ Non (race conditions) |
+
+<div class="tag-cpu">
+Attention : toutes les opérations des streams ne tirent pas pleinement parti de parallelStream. Certaines, comme findFirst, limit ou skip, nécessitent une coordination entre threads qui peut fortement réduire, voire annuler, les gains du parallélisme.
+</div>
 
 ---
 
@@ -553,7 +550,7 @@ finally { lock.unlock(); }
 
 ---
 
-## ☕ Java 21 — Structured Concurrency
+## ☕ Java 25+ — Structured Concurrency (Preview)
 
 **Le problème :** avec `ExecutorService`, si une tâche échoue, les autres continuent de tourner.
 
@@ -581,16 +578,16 @@ try (var scope = new StructuredTaskScope.ShutdownOnSuccess<String>()) {
 
 ---
 
-## ☕ Java 21 — Scoped Values
+## ☕ Java 22 — Scoped Values
 
 **Le problème de `ThreadLocal` à l'ère des Virtual Threads :**
 
-| Critère | `ThreadLocal` | `ScopedValue` |
-|---|---|---|
-| Mutabilité | Mutable (n'importe qui peut écraser) | Immuable par design |
-| Portée | Durée de vie du thread | Bloc de code délimité |
-| Héritage sous-tâches | Copie coûteuse | Référence partagée, gratuite |
-| Fuite mémoire | ⚠️ Si `remove()` oublié | ✅ Nettoyage automatique |
+| Critère              | ThreadLocal                          | ScopedValue                  |
+| -------------------- | ------------------------------------ | ---------------------------- |
+| Mutabilité           | Mutable (n'importe qui peut écraser) | Immuable par design          |
+| Portée               | Durée de vie du thread               | Bloc de code délimité        |
+| Héritage sous-tâches | Copie coûteuse                       | Référence partagée, gratuite |
+| Fuite mémoire        | ⚠️ Si `remove()` oublié              | ✅ Nettoyage automatique     |
 
 ```java
 static final ScopedValue<User> CURRENT_USER = ScopedValue.newInstance();
@@ -610,6 +607,7 @@ Toutes les approches vues jusqu'ici **gèrent** le partage d'état.
 Le modèle Actor l'**élimine par design** — Carl Hewitt, MIT, 1973.
 
 **Un Actor, c'est :**
+
 - Un **état strictement privé** — jamais accessible de l'extérieur
 - Une **mailbox** — file de messages entrants
 - Un **comportement** — traite les messages **un par un**
@@ -640,6 +638,7 @@ Actor A ──message──► Mailbox B ──► Actor B traite seul son état
 ```
 
 **⚠️ Quand ça devient contre-productif :**
+
 ```
 → Messages avec objets mutables : deux actors sur la même référence
   = race condition classique, toutes les garanties s'effondrent
@@ -652,18 +651,18 @@ Actor A ──message──► Mailbox B ──► Actor B traite seul son état
 
 ## 🗺️ Récap — Quand utiliser quoi ?
 
-| Besoin | Solution |
-|---|---|
-| Tâche I/O-bound simple | Virtual Thread |
-| 10 000 requêtes HTTP/DB concurrentes | `newVirtualThreadPerTaskExecutor()` |
-| Calcul CPU intensif récursif | `ForkJoinPool` |
-| Parallélisme simple sur collection | `parallelStream()` |
-| Orchestration async avec dépendances | `CompletableFuture` |
-| Flux continu + backpressure | Flow API / Project Reactor |
+| Besoin                                  | Solution                                |
+| --------------------------------------- | --------------------------------------- |
+| Tâche I/O-bound simple                  | Virtual Thread                          |
+| 10 000 requêtes HTTP/DB concurrentes    | `newVirtualThreadPerTaskExecutor()`     |
+| Calcul CPU intensif récursif            | `ForkJoinPool`                          |
+| Parallélisme simple sur collection      | `parallelStream()`                      |
+| Orchestration async avec dépendances    | `CompletableFuture`                     |
+| Flux continu + backpressure             | Flow API / Project Reactor              |
 | Plusieurs sous-tâches liées (tout/rien) | `StructuredTaskScope.ShutdownOnFailure` |
-| Prendre le résultat le plus rapide | `StructuredTaskScope.ShutdownOnSuccess` |
-| Contexte de requête partagé | `ScopedValue` |
-| Entités métier isolées, distribué | Modèle Actor (Akka/Pekko) |
+| Prendre le résultat le plus rapide      | `StructuredTaskScope.ShutdownOnSuccess` |
+| Contexte de requête partagé             | `ScopedValue`                           |
+| Entités métier isolées, distribué       | Modèle Actor (Akka/Pekko)               |
 
 ---
 
@@ -680,6 +679,7 @@ Serveur physique
 ```
 
 Les hypothèses théoriques tombent souvent :
+
 ```
 Théorie : nbThreads = nbCœurs / (1 - blockingFactor)
 Réalité : blockingFactor varie selon la charge, la latence réseau,
@@ -696,13 +696,13 @@ La configuration optimale est spécifique à chaque infra.
 
 ## 🌍 Java dans le paysage des langages
 
-| Langage | Modèle | Force | Limite |
-|---|---|---|---|
-| **JavaScript** | Event loop mono-thread | Simple, pas de race conditions | Pas de vrai parallélisme CPU |
-| **Python** | GIL + asyncio | Syntaxe claire | GIL bloque le CPU multi-thread |
-| **Go** | Goroutines + channels | Léger nativement depuis 2009 | Runtime moins configurable |
-| **Rust** | async/await + Tokio | Zéro data race à la compilation | Courbe d'apprentissage très steep |
-| **Java 21** | Virtual Threads + SC | Rétrocompatible, lisible, scalable | JVM overhead, GC pauses |
+| Langage        | Modèle                 | Force                              | Limite                            |
+| -------------- | ---------------------- | ---------------------------------- | --------------------------------- |
+| **JavaScript** | Event loop mono-thread | Simple, pas de race conditions     | Pas de vrai parallélisme CPU      |
+| **Python**     | GIL + asyncio          | Syntaxe claire                     | GIL bloque le CPU multi-thread    |
+| **Go**         | Goroutines + channels  | Léger nativement depuis 2009       | Runtime moins configurable        |
+| **Rust**       | async/await + Tokio    | Zéro data race à la compilation    | Courbe d'apprentissage très steep |
+| **Java 21**    | Virtual Threads + SC   | Rétrocompatible, lisible, scalable | JVM overhead, GC pauses           |
 
 **Go** a eu les goroutines depuis 2009 — Java arrive plus tard mais avec un avantage clé : **tout le code bloquant existant bénéficie des VT sans réécriture**.
 
@@ -728,4 +728,7 @@ jcip.net
 
 **Outils**
 JMH · async-profiler · Java Flight Recorder
+
+```
+
 ```
